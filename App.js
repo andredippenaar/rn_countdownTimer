@@ -2,14 +2,12 @@ import * as React from 'react';
 import {
   Vibration,
   StatusBar,
-  Easing,
   TextInput,
   Dimensions,
   Animated,
   TouchableOpacity,
-  FlatList,
-  Text,
   View,
+  Image,
   StyleSheet,
 } from 'react-native';
 const { width, height } = Dimensions.get('window');
@@ -111,6 +109,7 @@ export default function App() {
       ]}>
 
       </Animated.View>
+      <Image source={require('./assets/F45.png')} resizeMode='contain' style={{width: width / 2, top: -100, justifyContent: "center", alignSelf: "center"}} />
       <Animated.View
         style={[
           StyleSheet.absoluteFillObject,
@@ -134,7 +133,7 @@ export default function App() {
       <View
         style={{
           position: 'absolute',
-          top: height / 3,
+          top: height / 2.2,
           left: 0,
           right: 0,
           flex: 1,
@@ -145,7 +144,7 @@ export default function App() {
             justifyContent: "center",
             alignItems: "center",
             alignSelf: "center",
-            opacity: textOpacity
+            opacity: textOpacity, 
           }}>
             <TextInput 
               ref={inputRef}
