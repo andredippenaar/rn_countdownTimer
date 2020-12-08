@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Text,
   StyleSheet,
 } from 'react-native';
 const { width, height } = Dimensions.get('window');
@@ -15,6 +16,7 @@ const colors = {
   blue: '#211551',
   red: '#ff003c',
   text: '#ffffff',
+  green: '#90EE90'
 };
 
 const timers = [...Array(13).keys()].map((i) => (i === 0 ? 1 : i * 5));
@@ -26,8 +28,11 @@ export default function App() {
   const [duration, setDuration] = React.useState(timers[0]);
   const inputRef = React.useRef();
   const timerAnimation = React.useRef(new Animated.Value(height)).current;
+  const recoveryAnimation = React.useRef(new Animated.Value(height)).current;
   const textInputAnimation = React.useRef(new Animated.Value(timers[0])).current;
   const buttonAnimation = React.useRef(new Animated.Value(0)).current;
+  const recoveryText = React.useRef(new Animated.Value(0)).current;
+  
 
   React.useEffect(() => {
     const listener = textInputAnimation.addListener(({value}) => {
@@ -67,18 +72,49 @@ export default function App() {
           useNativeDriver: true
         })
       ]),
+      
+      
       Animated.delay(400)
     ]).start(() => {
       Vibration.cancel();
       Vibration.vibrate();
-      textInputAnimation.setValue(duration);
+      textInputAnimation.setValue(duration/4);
+      recoveryText.setValue(1);
+      Animated.sequence([
+        Animated.timing(recoveryAnimation, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true
+        }),
+        Animated.parallel([
+          Animated.timing(textInputAnimation, {
+            toValue: 0,
+            duration: (duration / 3) * 1000,
+            useNativeDriver: true
+          }),
+          Animated.timing(recoveryAnimation, {
+            toValue: height,
+            duration: (duration / 3) * 1000,
+            useNativeDriver: true
+          }),
+        ]),
+        
+        Animated.delay(400)
+      ]).start(() => {
+        recoveryText.setValue(0);
+        textInputAnimation.setValue(duration);
       Animated.timing(buttonAnimation, {
         toValue: 0,
         duration: 300,
         useNativeDriver: true
       }).start()
+      })
+      
+      
     })
   }, [duration])
+  
+  
 
   const opacity = buttonAnimation.interpolate({
     inputRange: [0,1],
@@ -95,6 +131,7 @@ export default function App() {
     outputRange: [0,1]
   })
 
+
   return (
     <View style={styles.container}>
       <StatusBar hidden />
@@ -104,6 +141,17 @@ export default function App() {
         backgroundColor: colors.red,
         transform: [{
           translateY: timerAnimation
+        }]
+      }
+      ]}>
+
+      </Animated.View>
+      <Animated.View style={[StyleSheet.absoluteFillObject, {
+        height, 
+        width, 
+        backgroundColor: colors.green,
+        transform: [{
+          translateY: recoveryAnimation
         }]
       }
       ]}>
@@ -140,12 +188,33 @@ export default function App() {
         }}>
           <Animated.View style={{
             position: 'absolute',
+            top: -20,
+            width: ITEM_SIZE,
+            justifyContent: "center",
+            alignItems: "center",
+            alignSelf: "center",
+            opacity: recoveryText
+          }}>
+           
+            <Text 
+            style={{
+              color: colors.text, 
+              fontSize: 30,
+              fontFamily: 'Menlo',
+              color: colors.text,
+              fontWeight: '900',}}>
+                RECOVERY
+              </Text>
+          </Animated.View>
+          <Animated.View style={{
+            position: 'absolute',
             width: ITEM_SIZE,
             justifyContent: "center",
             alignItems: "center",
             alignSelf: "center",
             opacity: textOpacity, 
           }}>
+           
             <TextInput 
               ref={inputRef}
               style={styles.text}
